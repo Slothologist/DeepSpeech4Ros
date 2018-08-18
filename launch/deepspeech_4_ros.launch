@@ -1,0 +1,4 @@
+<launch>
+    <arg name="path_to_config" />
+    <node name="deepspeech_4_ros" pkg="deepspeech_4_ros" type="deepspeech_4_ros" output="screen" args="$(arg path_to_config)" />
+</launch>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+    <name>deepspeech_4_ros</name>
+    <version>0.0.1</version>
+    <description>package to recognize speech coming via jackaudio using mozilla deepspeech</description>
+
+    <maintainer email="rfeldh@gmail.com">Robert Feldhans</maintainer>
+    <license>---none---</license>
+    <author>rfeldhans</author>
+
+    <buildtool_depend>catkin</buildtool_depend>
+    <build_depend>roscpp</build_depend>
+    <build_depend>speech_rec_pipeline_msgs</build_depend>
+
+    <run_depend>roscpp</run_depend>
+    <run_depend>package</run_depend>
+    <run_depend>speech_rec_pipeline_msgs</run_depend>
+
+</package>
