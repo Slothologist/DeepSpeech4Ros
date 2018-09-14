@@ -20,6 +20,7 @@ start=$SECONDS
 skip_stuff="bla"
 if [ ! -n "${skip_stuff+set}" ]; then
 echo "skipping"
+fi #stop skip
 
 echo -e "\e[92m#### Downloading Model ####\e[0m"
 mkdir -p $MAIN/model
@@ -57,7 +58,6 @@ cd DeepSpeech
 git checkout v0.1.1
 ok
 
-fi #stop skip
 cd $MAIN
 
 if [ ! -d "tensorflow" ]; then
