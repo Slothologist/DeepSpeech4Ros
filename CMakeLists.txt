@@ -96,6 +96,8 @@ include_directories(
         ${catkin_INCLUDE_DIRS}
 )
 
+LINK_DIRECTORIES(DeepSpeech4Ros/libs)
+
 ## Declare a C++ library
 # add_library(deepspeech_4_ros
 #   src/${PROJECT_NAME}/deepspeech_4_ros.cpp
@@ -120,7 +122,10 @@ add_dependencies(deepspeech_4_ros ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_E
 ## Specify libraries to link a library or executable target against
 target_link_libraries(deepspeech_4_ros
         ${catkin_LIBRARIES}
-        jack
+        # jack
+        libdeepspeech.a
+        libdeepspeech_utils.a
+        tensorflow_framework
         )
 
 #############
