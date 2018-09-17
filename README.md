@@ -9,6 +9,8 @@ Mozilla Deepspeech for Ros via Jackaudio as part of a larger Pipeline
 
 - Deepspeech
 
+- Boost library
+
 Deepspeech is a bit tricky to install, since we need a linkable library and not just a python wheel.
 Therefore we must build and install Deepspeech ourselves, along with its dependencies, tensorflow and bazel.
 

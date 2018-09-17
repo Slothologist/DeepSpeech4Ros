@@ -6,7 +6,6 @@
 #define DEEPSPEECH_4_ROS_UTILS_H
 
 
-#include <jack/jack.h>
 #include <string>
 #include "ros/ros.h"
 
@@ -17,6 +16,10 @@ namespace utils{
         std::string ros_change_config_topic;
         const char* jack_client_name;
         const char* jack_server_name = nullptr;
+        const char* model_path;
+        const char* alphabet_path;
+        const char* lm_path;
+        const char* trie_path;
     };
 
     void read_config(config* config, std::string config_file);
