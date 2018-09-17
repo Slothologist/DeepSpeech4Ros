@@ -19,6 +19,40 @@ DeepSpeech::Model* model;
 
 
 
+void process_sample(){
+
+    size_t buffer_size = 0;
+    char* buffer = nullptr;
+    int sampleRate = 0;
+
+    // prepare audio
+
+    // aquire result
+    struct DsSTT::ds_result* result = DsSTT::LocalDsSTT(model, (const short*)buffer,
+                                                        buffer_size / 2, sampleRate);
+    free(buffer);
+
+    // handle result if existing
+    if (result) {
+        if (result->string) {
+            printf("%s\n", result->string);
+            free(result->string);
+        }
+
+        printf("cpu_time_overall=%.05f cpu_time_mfcc=%.05f "
+                       "cpu_time_infer=%.05f\n",
+               result->cpu_time_overall,
+               result->cpu_time_mfcc,
+               result->cpu_time_infer);
+
+
+        free(result);
+    } else{
+
+    }
+}
+
+
 int main(int argc, char *argv[]) {
 
     // parse config

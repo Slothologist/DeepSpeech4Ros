@@ -27,11 +27,26 @@ namespace utils {
         // build paths of model from singular directory given in config file
         std::string model_path = pt.get<std::string>("model_path");
         if(!boost::algorithm::ends_with(model_path, "/"))
-            model_path += "/"; // add "/" to circumvent filename merging with lowest directory
-        config->model_path = (model_path + PB_MODEL).c_str();
-        config->alphabet_path = (model_path + ALPHABET).c_str();
-        config->lm_path = (model_path + LM_BINARY).c_str();
-        config->trie_path = (model_path + TRIE).c_str();
+            model_path = model_path.append("/"); // add "/" to circumvent filename merging with lowest directory
+
+        // TODO: way to complicated and hacky to remain.
+        // Just using something like config->model_path = (model_path.append(PB_MODEL)).c_str() does not work because
+        // the lifetime of the char* retrieved by c_str() ends when this function returns
+        char* mp = new char[(model_path + PB_MODEL).length()];
+        strcpy(mp, (model_path + PB_MODEL).c_str());
+        config->model_path = mp;
+
+        mp = new char[(model_path + ALPHABET).length()];
+        strcpy(mp, (model_path + ALPHABET).c_str());
+        config->alphabet_path = mp;
+
+        mp = new char[(model_path + LM_BINARY).length()];
+        strcpy(mp, (model_path + LM_BINARY).c_str());
+        config->lm_path = mp;
+
+        mp = new char[(model_path + TRIE).length()];
+        strcpy(mp, (model_path + TRIE).c_str());
+        config->trie_path = mp;
 
     }
 
