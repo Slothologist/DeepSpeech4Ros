@@ -22,14 +22,15 @@ if [ ! -n "${skip_stuff+set}" ]; then
 echo "skipping"
 fi #stop skip
 
+
 echo -e "\e[92m#### Downloading Model ####\e[0m"
 mkdir -p $MAIN/model
 cd $MAIN/model
-if [ ! -e "deepspeech-0.1.1-models.tar.gz" ]
+if [ ! -e "deepspeech-0.2.0-models.tar.gz" ]
 then
-    wget https://github.com/mozilla/DeepSpeech/releases/download/v0.1.1/deepspeech-0.1.1-models.tar.gz
+    wget https://github.com/mozilla/DeepSpeech/releases/download/v0.2.0/deepspeech-0.2.0-models.tar.gz
 fi
-tar xvfz deepspeech-0.1.1-models.tar.gz
+tar xvfz deepspeech-0.2.0-models.tar.gz
 
 
 echo -e "\e[92m#### Bazel ####\e[0m"
@@ -55,7 +56,7 @@ if [ ! -d "DeepSpeech" ]; then
     ok
 fi
 cd DeepSpeech
-git checkout v0.1.1
+git checkout v0.2.0
 ok
 
 cd $MAIN
@@ -97,12 +98,11 @@ ok
 ./configure
 ok
 
-bazel build -c opt --copt=-O3 --copt="-D_GLIBCXX_USE_CXX11_ABI=0"  //tensorflow:libtensorflow_cc.so //tensorflow:libtensorflow_framework.so //native_client:deepspeech //native_client:deepspeech_utils //native_client:libctc_decoder_with_kenlm.so //native_client:generate_trie
+
+bazel build -c opt --copt=-O3 --copt="-D_GLIBCXX_USE_CXX11_ABI=0" //native_client:libctc_decoder_with_kenlm.so
 ok
-#bazel build -c opt --copt=-O3 --copt="-D_GLIBCXX_USE_CXX11_ABI=0" //native_client:libctc_decoder_with_kenlm.so
-#ok
-#bazel build --config=monolithic -c opt --copt=-O3 --copt="-D_GLIBCXX_USE_CXX11_ABI=0" --copt=-fvisibility=hidden //native_client:libdeepspeech.so //native_client:generate_trie
-#ok
+bazel build --config=monolithic -c opt --copt=-O3 --copt="-D_GLIBCXX_USE_CXX11_ABI=0" --copt=-fvisibility=hidden //native_client:libdeepspeech.so //native_client:generate_trie
+ok
 
 
 
@@ -110,12 +110,9 @@ cd $MAIN/DeepSpeech/native_client
 make deepspeech
 ok
 mkdir -p ${SCRIPT_DIR}/DeepSpeech4Ros/libs
-cp ${MAIN}/tensorflow/bazel-out/k8-py3-opt/bin/native_client/libdeepspeech.a ${SCRIPT_DIR}/DeepSpeech4Ros/libs/
-cp ${MAIN}/tensorflow/bazel-out/k8-py3-opt/bin/native_client/libdeepspeech_utils.a ${SCRIPT_DIR}/DeepSpeech4Ros/libs/
-cp ${MAIN}/tensorflow/bazel-out/k8-py3-opt/bin/tensorflow/libtensorflow_framework.so ${SCRIPT_DIR}/DeepSpeech4Ros/libs/
-chmod u+w ${SCRIPT_DIR}/DeepSpeech4Ros/libs/libdeepspeech.a
+cp ${MAIN}/tensorflow/bazel-out/k8-py3-opt/bin/native_client/*.so ${SCRIPT_DIR}/DeepSpeech4Ros/libs/
+chmod u+w ${SCRIPT_DIR}/DeepSpeech4Ros/libs/*.so
 ok
-
 
 duration=$((SECONDS-start))
 echo -e "\e[92m#### Finished in" $duration "seconds ! You're good to go! ####\e[0m"

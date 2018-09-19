@@ -8,7 +8,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
-#define PB_MODEL "output_graph.pb"
+#define PB_MODEL "output_graph.pbmm"
 #define ALPHABET "alphabet.txt"
 #define LM_BINARY "lm.binary"
 #define TRIE "trie"

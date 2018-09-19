@@ -10,43 +10,28 @@
 
 namespace DsSTT {
 
-struct ds_result {
-    char* string;
-    double cpu_time_overall;
-    double cpu_time_mfcc;
-    double cpu_time_infer;
-};
+    typedef struct {
+        const char* string;
+        double cpu_time_overall;
+    } ds_result;
 
-// DsSTT() instrumented
-struct ds_result* LocalDsSTT(DeepSpeech::Model *aCtx, const short *aBuffer, size_t aBufferSize,
-           int aSampleRate){
-            float *mfcc;
-            struct ds_result *res = (struct ds_result *) malloc(sizeof(struct ds_result));
-            if (!res) {
-                return NULL;
-            }
+    ds_result
+    LocalDsSTT(ModelState* aCtx, const short* aBuffer, size_t aBufferSize,
+               int aSampleRate)
+    {
+        ds_result res = {0};
 
-            clock_t ds_start_time = clock();
-            clock_t ds_end_mfcc = 0, ds_end_infer = 0;
+        clock_t ds_start_time = clock();
 
-            int n_frames = 0;
-            aCtx->getInputVector(aBuffer, aBufferSize, aSampleRate, &mfcc, &n_frames);
-            ds_end_mfcc = clock();
+        res.string = DS_SpeechToText(aCtx, aBuffer, aBufferSize, aSampleRate);
 
-            res->string = aCtx->infer(mfcc, n_frames);
-            ds_end_infer = clock();
+        clock_t ds_end_infer = clock();
 
-            free(mfcc);
+        res.cpu_time_overall =
+                ((double) (ds_end_infer - ds_start_time)) / CLOCKS_PER_SEC;
 
-            res->cpu_time_overall =
-                    ((double) (ds_end_infer - ds_start_time)) / CLOCKS_PER_SEC;
-            res->cpu_time_mfcc =
-                    ((double) (ds_end_mfcc - ds_start_time)) / CLOCKS_PER_SEC;
-            res->cpu_time_infer =
-                    ((double) (ds_end_infer - ds_end_mfcc)) / CLOCKS_PER_SEC;
-
-            return res;
-        }
+        return res;
+    }
 
 }//namespace
 
