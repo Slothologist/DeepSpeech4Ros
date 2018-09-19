@@ -48,6 +48,10 @@ namespace utils {
         strcpy(mp, (model_path + TRIE).c_str());
         config->trie_path = mp;
 
+        config->sample_rate = pt.get<int>("sample_rate");
+        config->max_audio_length = pt.get<int>("max_audio_length");
+        assert(config->max_audio_length%1000 == 0);
+
     }
 
 }

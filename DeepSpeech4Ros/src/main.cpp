@@ -16,20 +16,20 @@
 
 utils::config* cfg;
 DeepSpeech::Model* model;
+size_t buffer_size;
+void* buffer;
 
 
 
 void process_sample(){
 
-    size_t buffer_size = 0;
-    char* buffer = nullptr;
-    int sampleRate = 0;
+    buffer_size = (size_t) cfg->sample_rate*cfg->max_audio_length/1000;
 
     // prepare audio
 
     // aquire result
     struct DsSTT::ds_result* result = DsSTT::LocalDsSTT(model, (const short*)buffer,
-                                                        buffer_size / 2, sampleRate);
+                                                        buffer_size / 2, cfg->sample_rate);
     free(buffer);
 
     // handle result if existing

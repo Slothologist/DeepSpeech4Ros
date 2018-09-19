@@ -20,6 +20,8 @@ namespace utils{
         const char* alphabet_path;
         const char* lm_path;
         const char* trie_path;
+        int sample_rate;
+        int max_audio_length;
     };
 
     void read_config(config* config, std::string config_file);
