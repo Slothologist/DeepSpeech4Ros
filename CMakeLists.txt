@@ -122,7 +122,7 @@ add_dependencies(deepspeech_4_ros ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_E
 ## Specify libraries to link a library or executable target against
 target_link_libraries(deepspeech_4_ros
         ${catkin_LIBRARIES}
-        # jack
+        jack
         deepspeech
         ctc_decoder_with_kenlm
         )
