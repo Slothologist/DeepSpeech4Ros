@@ -125,6 +125,7 @@ target_link_libraries(deepspeech_4_ros
         jack
         deepspeech
         ctc_decoder_with_kenlm
+        soxr
         )
 
 #############

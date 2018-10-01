@@ -1,5 +1,5 @@
 //
-// Created by rfeldhans on 17.09.18.
+// File created by rfeldhans on 17.09.18.
 // Taken from https://github.com/mozilla/DeepSpeech/blob/v0.1.1/native_client/client.cc
 //
 

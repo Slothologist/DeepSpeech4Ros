@@ -1,6 +1,6 @@
 
 echo -e "\e[92m#### Installing the necessary requirements for Bazel and Tensorflow! ####\e[0m"
-start=
+start=$SECONDS
 
 echo -e "\e[92m#### Bazel ####\e[0m"
 sudo apt install -y build-essential openjdk-8-jdk python zip unzip
