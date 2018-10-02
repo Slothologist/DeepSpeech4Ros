@@ -1,6 +1,7 @@
 
 // ros includes
 #include "ros/ros.h"
+#include "speech_rec_pipeline_msgs/RecognizeSpeech.h"
 
 // jack includes
 #include <jack/jack.h>
@@ -23,6 +24,8 @@
 #define BEAM_WIDTH 500
 #define LM_WEIGHT 1.75f
 #define VALID_WORD_COUNT_WEIGHT 1.00f
+
+#define DEEPSPEECH_SAMPLE_RATE 16000
 
 // config for this deepspeech node
 utils::config* cfg;
@@ -55,20 +58,31 @@ int process_jack_frame(jack_nframes_t nframes, void *arg){
 }
 
 
-void process_sample(){
-    // sample down audio
+bool process_sample(speech_rec_pipeline_msgs::RecognizeSpeech::Request &req,
+                    speech_rec_pipeline_msgs::RecognizeSpeech::Response &res){
+    // resample audio
     size_t deepspeech_buffer_size;
-    short* deepspeech_buffer;
+    short *deepspeech_buffer = nullptr;
 
-    jack_default_audio_sample_t* jack_sample;
-    jack_buffer->pop(jack_sample, 1337);
+    // get length of audio requested
+    jack_nframes_t requested_audio_length = (jack_nframes_t)req.recognize_last_audio_in_ms * DEEPSPEECH_SAMPLE_RATE/1000;
 
+    // get audio from ringbuffer
+    req.recognize_last_audio_in_ms;
+    jack_default_audio_sample_t *jack_sample = nullptr;
+    int actual_audio_length = jack_buffer->pop(jack_sample, requested_audio_length);
+    if (requested_audio_length != actual_audio_length){
+        ROS_INFO("requested_audio_length (%d) and actual_audio_length(%d) differ, using smaller actual_audio_length!",
+                 requested_audio_length, actual_audio_length);
+    }
+
+    // resample call
     resampling::resample_jack_to_deepspeech(jack_sample,
-                                            (size_t) 1337,
+                                            (size_t) actual_audio_length,
                                             client,
                                             deepspeech_buffer,
                                             &deepspeech_buffer_size,
-                                            1337);
+                                            DEEPSPEECH_SAMPLE_RATE);
     free(jack_sample);
 
     // aquire result
@@ -77,12 +91,16 @@ void process_sample(){
     free(deepspeech_buffer);
 
     if (result.string) {
-        printf("%s\n", result.string);
+        ROS_INFO("Result: %s\n", result.string);
+    } else{
+        ROS_INFO("No Result!");
     }
-    printf("cpu_time_overall=%.05f\n",
+    ROS_INFO("cpu_time_overall=%.05f\n",
            result.cpu_time_overall);
-    //
+    // assemble response
+    res.recognized_speech = result.string;
 
+    return 1;
 }
 
 /******************************************************************
@@ -154,6 +172,8 @@ void initialize_jack(){
 void initialize_ros(int argc, char * *argv){
     ros::init(argc, argv, cfg->ros_node_name);
     ros::NodeHandle n;
+
+    ros::ServiceServer change_config_service = n.advertiseService(cfg->ros_change_config_topic, process_sample);
 }
 
 /********************************************************************************
