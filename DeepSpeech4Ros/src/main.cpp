@@ -5,7 +5,6 @@
 
 // jack includes
 #include <jack/jack.h>
-#include <sox.h>
 
 // inludes from this project
 #include "../include/utils.h"
@@ -35,7 +34,6 @@ ModelState* model;
 
 // buffer and its size to temporarily save audio received from jack
 ringbuffer::Ringbuffer* jack_buffer;
-size_t jack_buffer_size;
 
 // jack client and input
 jack_client_t *client;
@@ -72,7 +70,7 @@ bool process_sample(speech_rec_pipeline_msgs::RecognizeSpeech::Request &req,
     jack_default_audio_sample_t *jack_sample = nullptr;
     int actual_audio_length = jack_buffer->pop(jack_sample, requested_audio_length);
     if (requested_audio_length != actual_audio_length){
-        ROS_INFO("requested_audio_length (%d) and actual_audio_length(%d) differ, using smaller actual_audio_length!",
+        ROS_INFO("requested_audio_length (%d) and actual_audio_length (%d) differ, using smaller actual_audio_length!",
                  requested_audio_length, actual_audio_length);
     }
 
@@ -90,6 +88,7 @@ bool process_sample(speech_rec_pipeline_msgs::RecognizeSpeech::Request &req,
                                                 deepspeech_buffer_size / 2, cfg->sample_rate);
     free(deepspeech_buffer);
 
+    // print out result
     if (result.string) {
         ROS_INFO("Result: %s\n", result.string);
     } else{
@@ -97,6 +96,7 @@ bool process_sample(speech_rec_pipeline_msgs::RecognizeSpeech::Request &req,
     }
     ROS_INFO("cpu_time_overall=%.05f\n",
            result.cpu_time_overall);
+
     // assemble response
     res.recognized_speech = result.string;
 
@@ -158,14 +158,10 @@ void initialize_jack(){
         ROS_ERROR("unique name `%s' assigned", client_name);
     }
 
-    // create buffer for holding sound longer than one jack process_frame() call
-    jack_buffer_size = jack_get_sample_rate(client) * sizeof(jack_default_audio_sample_t) * cfg->max_audio_length/1000;
+    // create buffer for holding sound longer than one jack process_jack_frame() call
     jack_buffer = new ringbuffer::Ringbuffer((unsigned long) cfg->max_audio_length);
 
-    /* tell the JACK server to call `process()' whenever
-       there is work to be done.
-    */
-
+    // tell the JACK server to call `process_jack_frame()' whenever there is work to be done.
     jack_set_process_callback(client, process_jack_frame, nullptr);
 }
 
@@ -193,7 +189,10 @@ int main(int argc, char *argv[]) {
     initialize_jack();
     initialize_ros(argc, argv);
 
+    ROS_INFO("Node ready and rockin'");
+
     // main loop
+    ros::spin();
 
     // destructing stuff and freeing buffers
     DS_DestroyModel(model);
@@ -202,6 +201,7 @@ int main(int argc, char *argv[]) {
     delete(cfg->alphabet_path);
     delete(cfg->lm_path);
     delete(cfg->trie_path);
+    jack_client_close(client);
 
     return 0;
 }
