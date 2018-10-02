@@ -44,6 +44,9 @@ jack_port_t *input_port;
  * Jack and Ros Callback functions
  ******************************************************************/
 
+void jack_shutdown(void *arg) {
+    exit(1);
+}
 
 int process_jack_frame(jack_nframes_t nframes, void *arg){
     // aquire jack_audio_samples
@@ -161,8 +164,17 @@ void initialize_jack(){
     // create buffer for holding sound longer than one jack process_jack_frame() call
     jack_buffer = new ringbuffer::Ringbuffer((unsigned long) cfg->max_audio_length);
 
-    // tell the JACK server to call `process_jack_frame()' whenever there is work to be done.
+    // tell the JACK server to call `process_jack_frame()' whenever there is work to be done and jack_shutdown() when jack shuts downs
     jack_set_process_callback(client, process_jack_frame, nullptr);
+    jack_on_shutdown(client, jack_shutdown, nullptr);
+
+    // register the input port
+    input_port = jack_port_register(client, cfg->jack_input_port_name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
+
+    if (jack_activate(client)) {
+        ROS_ERROR("cannot activate client");
+        exit(1);
+    }
 }
 
 void initialize_ros(int argc, char * *argv){

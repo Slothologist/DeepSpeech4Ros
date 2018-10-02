@@ -23,6 +23,7 @@ namespace utils {
         config->ros_change_config_topic = pt.get<std::string>("ros_change_config_topic");
         config->jack_client_name = pt.get<std::string>("jack_client_name").c_str();
         //config->jack_server_name = pt.get<std::string>("jack_server_name").c_str(); TODO: read if there, don't if not
+        config->jack_input_port_name = pt.get<std::string>("jack_input_port_name").c_str();
 
         // build paths of model from singular directory given in config file
         std::string model_path = pt.get<std::string>("model_path");
