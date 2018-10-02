@@ -111,7 +111,7 @@ bool process_sample(speech_rec_pipeline_msgs::RecognizeSpeech::Request &req,
 void initialize_deepspeech(){
     int status = DS_CreateModel(cfg->model_path, N_CEP, N_CONTEXT, cfg->alphabet_path, BEAM_WIDTH, &model);
     if (status != 0) {
-        fprintf(stderr, "Could not create model.\n");
+        ROS_ERROR("Could not create model.");
         exit(1);
     }
     status = DS_EnableDecoderWithLM(model,
@@ -121,7 +121,7 @@ void initialize_deepspeech(){
                                     LM_WEIGHT,
                                     VALID_WORD_COUNT_WEIGHT);
     if (status != 0) {
-        fprintf(stderr, "Could not enable CTC decoder with LM.\n");
+        ROS_ERROR("Could not enable CTC decoder with LM.");
         exit(1);
     }
 }
@@ -143,19 +143,19 @@ void initialize_jack(){
     /* open a client connection to the JACK server */
     client = jack_client_open(client_name, options, &jack_status, server_name);
     if (client == nullptr) {
-        fprintf(stderr, "jack_client_open() failed, "
-                "status = 0x%2.0x\n", jack_status);
+        ROS_ERROR("jack_client_open() failed, "
+                "status = 0x%2.0x", jack_status);
         if (jack_status & JackServerFailed) {
-            fprintf(stderr, "Unable to connect to JACK server\n");
+            ROS_ERROR("Unable to connect to JACK server");
         }
         exit(1);
     }
     if (jack_status & JackServerStarted) {
-        fprintf(stderr, "JACK server started\n");
+        ROS_ERROR("JACK server started");
     }
     if (jack_status & JackNameNotUnique) {
         client_name = jack_get_client_name(client);
-        fprintf(stderr, "unique name `%s' assigned\n", client_name);
+        ROS_ERROR("unique name `%s' assigned", client_name);
     }
 
     // create buffer for holding sound longer than one jack process_frame() call
