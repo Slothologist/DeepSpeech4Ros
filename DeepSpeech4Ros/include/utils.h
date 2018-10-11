@@ -13,19 +13,21 @@ namespace utils{
 
     struct config{
         std::string ros_node_name;
-        std::string ros_change_config_topic;
-        const char* jack_client_name;
-        const char* jack_server_name = nullptr;
-        const char* jack_input_port_name;
-        const char* model_path;
-        const char* alphabet_path;
-        const char* lm_path;
-        const char* trie_path;
+        std::string ros_recognize_speech_topic;
+        std::string jack_client_name;
+        std::string jack_server_name;
+        std::string jack_input_port_name;
+        std::string model_path;
+        std::string alphabet_path;
+        std::string lm_path;
+        std::string trie_path;
         int sample_rate;
         int max_audio_length;
     };
 
-    void read_config(config* config, std::string config_file);
+    void read_config(config &config, std::string config_file);
+
+    bool array_zero(float* array, size_t size);
 
 }
 

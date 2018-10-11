@@ -17,7 +17,7 @@ namespace ringbuffer{
         boost::mutex::scoped_lock lock(mutex_lock);
         for(int i = 0; i < amount;i++){
             // push every jack sample individually... oh boy the performance!
-            buffer.push_front(audio[i]);
+            buffer.push_back(audio[i]);
         }
         lock.unlock();
     }
@@ -31,7 +31,6 @@ namespace ringbuffer{
         } else{
             actual_num_of_returned_samples = amount;
         }
-        audio = (jack_default_audio_sample_t*) malloc(sizeof(jack_default_audio_sample_t)* actual_num_of_returned_samples);
 
         jack_nframes_t running_variable = actual_num_of_returned_samples;
         while(!buffer.empty() && running_variable){

@@ -16,7 +16,8 @@ namespace resampling{
                                      size_t jack_buffer_size,
                                      jack_client_t* jack_client,
                                      short* deepspeech_buffer,
-                                     size_t* deepspeech_buffer_written,
+                                     size_t deepspeech_buffer_size,
+                                     size_t& deepspeech_buffer_written,
                                      int deepspeech_sample_rate);
 
 }
