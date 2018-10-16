@@ -57,8 +57,6 @@ void jack_shutdown(void *arg) {
     exit(1);
 }
 
-sox_format_t
-
 int process_jack_frame(jack_nframes_t nframes, void *arg){
     // aquire jack_audio_samples
     jack_default_audio_sample_t* in = (jack_default_audio_sample_t *) jack_port_get_buffer(input_port, nframes);
