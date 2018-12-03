@@ -1,5 +1,11 @@
 # DeepSpeech4Ros
-Mozilla Deepspeech for Ros via Jackaudio as part of a larger Pipeline
+Mozilla Deepspeech for Ros via Jackaudio as part of a larger Pipeline.
+
+## Disclaimer
+
+DeepSpeech4Ros is in development and currently not recommended for use.
+Requirements will most likely change in the near future; We will move away from jackaudio as sound framework to a more dedicated framework called esiaf, which is currently beeing worked on..
+
 
 ## Requirements
 
