@@ -65,8 +65,8 @@ ln -s ../DeepSpeech/native_client ./
 
 #configure flags
 export \
-    PYTHON_BIN_PATH=${DEEPSPEECH_PYTHON_BIN_PATH} \
-    PYTHON_LIB_PATH=${DEEPSPEECH_PYTHON_LIB_PATH} \
+    PYTHON_BIN_PATH=/usr/bin/python3 \
+    PYTHON_LIB_PATH=/usr/lib/python3/dist-packages \
     TF_NEED_JEMALLOC=0 \
     TF_NEED_GCP=0 \
     TF_NEED_HDFS=0 \
