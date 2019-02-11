@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# config values
+DEEPSPEECH_CUDA_SUPPORT=$1
+
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 DIR=$(pwd)
 
