@@ -17,12 +17,6 @@ start=$SECONDS
 
 
 
-skip_stuff="bla"
-if [ ! -n "${skip_stuff+set}" ]; then
-echo "skipping"
-fi #stop skip
-
-
 echo -e "\e[92m#### Downloading Model ####\e[0m"
 mkdir -p $MAIN/model
 cd $MAIN/model
@@ -71,8 +65,8 @@ ln -s ../DeepSpeech/native_client ./
 
 #configure flags
 export \
-    PYTHON_BIN_PATH=/home/${USER}/anaconda3/bin/python \
-    PYTHON_LIB_PATH=/home/${USER}/anaconda3/lib/python3.6/site-packages \
+    PYTHON_BIN_PATH=${DEEPSPEECH_PYTHON_BIN_PATH} \
+    PYTHON_LIB_PATH=${DEEPSPEECH_PYTHON_LIB_PATH} \
     TF_NEED_JEMALLOC=0 \
     TF_NEED_GCP=0 \
     TF_NEED_HDFS=0 \
@@ -80,9 +74,9 @@ export \
     TF_NEED_GDR=0 \
     TF_NEED_VERBS=0 \
     TF_NEED_OPENCL_SYCL=0 \
-    TF_NEED_CUDA=0 \
+    TF_NEED_CUDA=${DEEPSPEECH_CUDA_SUPPORT} \
     TF_NEED_MPI=0 \
-    CC_OPT_FLAGS="-march=native" \
+    CC_OPT_FLAGS=${CXXFLAGS} \
     TF_SET_ANDROID_WORKSPACE=0
 
 echo -e "\e[92mdelete chache in case this gets rebuild and let bazel clean its mess\e[0m"
