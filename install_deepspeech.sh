@@ -23,6 +23,7 @@ function ok (){
 }
 
 export MAIN=$DIR/deepspeech_install
+mkdir -p $MAIN
 CPU_CORES='nproc --all'
 start=$SECONDS
 
