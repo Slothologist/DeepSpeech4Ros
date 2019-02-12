@@ -26,17 +26,6 @@ export MAIN=$DIR/deepspeech_install
 CPU_CORES='nproc --all'
 start=$SECONDS
 
-
-echo -e "\e[92m#### Downloading Model ####\e[0m"
-mkdir -p $MAIN/model
-cd $MAIN/model
-if [ ! -e "deepspeech-0.4.1-models.tar.gz" ]
-then
-    wget https://github.com/mozilla/DeepSpeech/releases/download/v0.4.1/deepspeech-0.4.1-models.tar.gz
-fi
-tar xvfz deepspeech-0.4.1-models.tar.gz
-
-
 echo -e "\e[92m#### Bazel ####\e[0m"
 cd $MAIN
 if [ ! -e "bazel-0.15.0-dist.zip" ]
