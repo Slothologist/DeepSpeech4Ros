@@ -105,8 +105,12 @@ ok
 mkdir -p $DEEPSPEECH_INSTALL_PREFIX/lib/deepspeech
 cp ${MAIN}/tensorflow/bazel-out/k8*/bin/native_client/*.so $DEEPSPEECH_INSTALL_PREFIX/lib/deepspeech/
 ok
+chmod +w $DEEPSPEECH_INSTALL_PREFIX/lib/deepspeech/libdeepspeech.so
+ok
 mkdir -p $DEEPSPEECH_INSTALL_PREFIX/include/deepspeech
 cp ${MAIN}/DeepSpeech/native_client/deepspeech.h $DEEPSPEECH_INSTALL_PREFIX/include/deepspeech/
+ok
+chmod +w $DEEPSPEECH_INSTALL_PREFIX/include/deepspeech/deepspeech.h
 ok
 
 duration=$((SECONDS-start))
