@@ -112,7 +112,8 @@ ok
 cd $MAIN/DeepSpeech/native_client
 make deepspeech
 ok
-cp ${MAIN}/tensorflow/bazel-out/k8-opt/bin/native_client/*.so $prefix/lib/
+cp ${MAIN}/tensorflow/bazel-out/k8*/bin/native_client/*.so $prefix/lib/
+ok
 cp ${MAIN}/DeepSpeech/native_client/deepspeech.h $DEEPSPEECH_INSTALL_PREFIX/include/
 ok
 
