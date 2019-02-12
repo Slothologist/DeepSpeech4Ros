@@ -6,7 +6,7 @@ DIR=$(pwd)
 
 # config values
 DEEPSPEECH_CUDA_SUPPORT=${1:-"0"} 
-DEEPSPEECH_INSTALL_PREFIX=${2:-DEFAULTVALUE} 
+DEEPSPEECH_INSTALL_PREFIX=${2:-$DIR}
 DEEPSPEECH_CXX_OPTS=${3:-"-march=native"} 
 
 echo "Building deepspeech with cuda support? $DEEPSPEECH_CUDA_SUPPORT"
@@ -112,10 +112,8 @@ ok
 cd $MAIN/DeepSpeech/native_client
 make deepspeech
 ok
-mkdir -p ${SCRIPT_DIR}/DeepSpeech4Ros/libs
 cp ${MAIN}/tensorflow/bazel-out/k8-opt/bin/native_client/*.so $prefix/lib/
-cp ${MAIN}/DeepSpeech/native_client/deepspeech.h $prefix/include/
-chmod u+w ${SCRIPT_DIR}/DeepSpeech4Ros/libs/*.so
+cp ${MAIN}/DeepSpeech/native_client/deepspeech.h $DEEPSPEECH_INSTALL_PREFIX/include/
 ok
 
 duration=$((SECONDS-start))
