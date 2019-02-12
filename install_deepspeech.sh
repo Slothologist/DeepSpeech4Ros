@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 
-# config values
-DEEPSPEECH_CUDA_SUPPORT=$1
-
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 DIR=$(pwd)
+
+# config values
+DEEPSPEECH_CUDA_SUPPORT=${1:-"0"} 
+DEEPSPEECH_INSTALL_PREFIX=${2:-DEFAULTVALUE} 
+DEEPSPEECH_CXX_OPTS=${3:-"-march=native"} 
+
+echo "Building deepspeech with cuda support? $DEEPSPEECH_CUDA_SUPPORT"
+echo "Building deepspeech with install prefix? $DEEPSPEECH_INSTALL_PREFIX"
+echo "Building deepspeech with c++ opts? $DEEPSPEECH_CXX_OPTS"
 
 function ok (){
   if [ $? -eq 0 ]; then
@@ -21,25 +27,24 @@ CPU_CORES='nproc --all'
 start=$SECONDS
 
 
-
 echo -e "\e[92m#### Downloading Model ####\e[0m"
 mkdir -p $MAIN/model
 cd $MAIN/model
-if [ ! -e "deepspeech-0.2.0-models.tar.gz" ]
+if [ ! -e "deepspeech-0.4.1-models.tar.gz" ]
 then
-    wget https://github.com/mozilla/DeepSpeech/releases/download/v0.2.0/deepspeech-0.2.0-models.tar.gz
+    wget https://github.com/mozilla/DeepSpeech/releases/download/v0.4.1/deepspeech-0.4.1-models.tar.gz
 fi
-tar xvfz deepspeech-0.2.0-models.tar.gz
+tar xvfz deepspeech-0.4.1-models.tar.gz
 
 
 echo -e "\e[92m#### Bazel ####\e[0m"
 cd $MAIN
-if [ ! -e "bazel-0.10.0-dist.zip" ]
+if [ ! -e "bazel-0.15.0-dist.zip" ]
 then
-    wget https://github.com/bazelbuild/bazel/releases/download/0.10.0/bazel-0.10.0-dist.zip
+    wget https://github.com/bazelbuild/bazel/releases/download/0.15.0/bazel-0.15.0-dist.zip
     ok
 fi
-unzip -oq bazel-0.10.0-dist.zip -d bazel
+unzip -oq bazel-0.15.0-dist.zip -d bazel
 ok
 cd bazel
 ./compile.sh
@@ -48,6 +53,7 @@ echo -e "\e[92madding bazel build output directory to PATH\e[0m"
 export PATH=$MAIN/bazel/output:$PATH
 ok
 
+
 echo -e "\e[92m#### Tensorflow and Deepspeech ####\e[0m"
 cd $MAIN
 if [ ! -d "DeepSpeech" ]; then
@@ -55,7 +61,7 @@ if [ ! -d "DeepSpeech" ]; then
     ok
 fi
 cd DeepSpeech
-git checkout v0.2.0
+git checkout v0.4.1
 ok
 
 cd $MAIN
@@ -65,8 +71,9 @@ if [ ! -d "tensorflow" ]; then
     ok
 fi
 cd tensorflow
-git checkout 8f1e4805401db5fcf4c0a32022a19eac7dac0dbb
+git checkout r1.12
 ln -s ../DeepSpeech/native_client ./
+
 
 #configure flags
 export \
@@ -81,7 +88,10 @@ export \
     TF_NEED_OPENCL_SYCL=0 \
     TF_NEED_CUDA=$DEEPSPEECH_CUDA_SUPPORT \
     TF_NEED_MPI=0 \
-    CC_OPT_FLAGS=${CXXFLAGS} \
+    TF_NEED_ROCM=0 \
+    TF_NEED_IGNITE=0 \
+    TF_DOWNLOAD_CLANG=0 \
+    CC_OPT_FLAGS=$DEEPSPEECH_CXX_OPTS \
     TF_SET_ANDROID_WORKSPACE=0
 
 echo -e "\e[92mdelete chache in case this gets rebuild and let bazel clean its mess\e[0m"
@@ -90,16 +100,10 @@ ok
 bazel clean
 ok
 
-echo -e "\e[92mfix someone elses shit...\e[0m"
-cp ${SCRIPT_DIR}/misc/jpeg.BUILD ${MAIN}/tensorflow/third_party/jpeg/jpeg.BUILD
-ok
 
 ./configure
 ok
 
-
-bazel build -c opt --copt=-O3 --copt="-D_GLIBCXX_USE_CXX11_ABI=0" //native_client:libctc_decoder_with_kenlm.so
-ok
 bazel build --config=monolithic -c opt --copt=-O3 --copt="-D_GLIBCXX_USE_CXX11_ABI=0" --copt=-fvisibility=hidden //native_client:libdeepspeech.so //native_client:generate_trie
 ok
 
@@ -109,7 +113,8 @@ cd $MAIN/DeepSpeech/native_client
 make deepspeech
 ok
 mkdir -p ${SCRIPT_DIR}/DeepSpeech4Ros/libs
-cp ${MAIN}/tensorflow/bazel-out/k8-py3-opt/bin/native_client/*.so ${SCRIPT_DIR}/DeepSpeech4Ros/libs/
+cp ${MAIN}/tensorflow/bazel-out/k8-opt/bin/native_client/*.so $prefix/lib/
+cp ${MAIN}/DeepSpeech/native_client/deepspeech.h $prefix/include/
 chmod u+w ${SCRIPT_DIR}/DeepSpeech4Ros/libs/*.so
 ok
 

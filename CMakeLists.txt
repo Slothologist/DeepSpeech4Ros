@@ -10,6 +10,7 @@ add_definitions(-std=c++11)
 find_package(catkin REQUIRED
         roscpp
         speech_rec_pipeline_msgs
+        esiaf_ros
         )
 
 
@@ -96,7 +97,7 @@ include_directories(
         ${catkin_INCLUDE_DIRS}
 )
 
-LINK_DIRECTORIES(DeepSpeech4Ros/libs)
+LINK_DIRECTORIES(DeepSpeech4Ros/lib)
 
 ## Declare a C++ library
 # add_library(deepspeech_4_ros
