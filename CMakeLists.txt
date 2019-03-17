@@ -9,10 +9,17 @@ add_definitions(-std=c++11)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED
         roscpp
-        speech_rec_pipeline_msgs
         esiaf_ros
         )
 
+find_library(DEEPSPEECH
+        NAMES deepspeech
+        )
+
+
+if (DEEPSPEECH STREQUAL "DEEPSPEECH-NOTFOUND")
+    message(FATAL_ERROR "deepspeech library not found")
+endif()
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -83,7 +90,7 @@ set (CMAKE_CXX_FLAGS "-O2")
 catkin_package(
         INCLUDE_DIRS DeepSpeech4Ros/include
         #  LIBRARIES deepspeech_4_ros_lib
-        #  DEPENDS jack
+        CATKIN_DEPENDS esiaf_ros
 )
 
 ###########
@@ -96,8 +103,6 @@ catkin_package(
 include_directories(
         ${catkin_INCLUDE_DIRS}
 )
-
-LINK_DIRECTORIES(DeepSpeech4Ros/lib)
 
 ## Declare a C++ library
 # add_library(deepspeech_4_ros
@@ -123,10 +128,7 @@ add_dependencies(deepspeech_4_ros ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_E
 ## Specify libraries to link a library or executable target against
 target_link_libraries(deepspeech_4_ros
         ${catkin_LIBRARIES}
-        jack
         deepspeech
-        ctc_decoder_with_kenlm
-        soxr
         )
 
 #############

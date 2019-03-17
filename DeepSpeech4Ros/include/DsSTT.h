@@ -6,7 +6,7 @@
 #ifndef DEEPSPEECH_4_ROS_DSSTT_H
 #define DEEPSPEECH_4_ROS_DSSTT_H
 
-#include "deepspeech.h"
+#include <deepspeech/deepspeech.h>
 
 namespace DsSTT {
 

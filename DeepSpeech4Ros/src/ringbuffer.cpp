@@ -7,32 +7,32 @@
 
 namespace ringbuffer{
 
-    Ringbuffer::Ringbuffer(boost::circular_buffer<jack_default_audio_sample_t>::size_type size):
+    Ringbuffer::Ringbuffer(boost::circular_buffer<int16_t >::size_type size):
         buffer(size)
     {
         this->size = size;
     }
 
-    void Ringbuffer::push(jack_default_audio_sample_t* audio, jack_nframes_t amount){
-        boost::mutex::scoped_lock lock(mutex_lock);
+    void Ringbuffer::push(int16_t* audio, size_t amount){
+        mutex_lock.lock();
         for(int i = 0; i < amount;i++){
             // push every jack sample individually... oh boy the performance!
             buffer.push_back(audio[i]);
         }
-        lock.unlock();
+        mutex_lock.unlock();
     }
 
-    jack_nframes_t Ringbuffer::pop(jack_default_audio_sample_t* audio, jack_nframes_t amount){
-        boost::mutex::scoped_lock lock(mutex_lock);
+    size_t Ringbuffer::pop(int16_t* audio, size_t amount){
+        mutex_lock.lock();
 
-        jack_nframes_t actual_num_of_returned_samples = 0;
+        size_t actual_num_of_returned_samples = 0;
         if(buffer.size() < amount){
-            actual_num_of_returned_samples = (jack_nframes_t) buffer.size();
+            actual_num_of_returned_samples = buffer.size();
         } else{
             actual_num_of_returned_samples = amount;
         }
 
-        jack_nframes_t running_variable = actual_num_of_returned_samples;
+        size_t running_variable = actual_num_of_returned_samples;
         while(!buffer.empty() && running_variable){
             // basically the same problem as in push()... the performance may be very bad.
             // note that audio is written to in reverse because of buffer.back()
@@ -49,7 +49,7 @@ namespace ringbuffer{
          */
         buffer.clear();
 
-        lock.unlock();
+        mutex_lock.unlock();
         return actual_num_of_returned_samples;
     }
 }
