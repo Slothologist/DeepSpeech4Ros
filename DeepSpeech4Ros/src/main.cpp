@@ -1,6 +1,8 @@
 
 // esiaf include
 #include <esiaf_ros/esiaf_ros.h>
+#include <esiaf_ros/SpeechInfo.h>
+#include <esiaf_ros/SpeechHypothesis.h>
 
 // deepspeech include
 #include <deepspeech/deepspeech.h>
@@ -34,7 +36,7 @@ utils::config cfg;
 ModelState* model;
 
 // buffer and its size to temporarily save audio received from jack
-ringbuffer::Ringbuffer* jack_buffer;
+ringbuffer::Ringbuffer* ring_buffer;
 
 // ros node handle and services
 ros::NodeHandle* ros_node_handle;
@@ -42,62 +44,8 @@ ros::NodeHandle* ros_node_handle;
 boost::function<void(const std::vector<int8_t> &, const esiaf_ros::RecordingTimeStamps &)> simple_esiaf_callback;
 void esiaf_handler(const std::vector<int8_t> &signal, const esiaf_ros::RecordingTimeStamps & timeStamps){ simple_esiaf_callback(signal, timeStamps); };
 
-
-/*
-bool process_sample(speech_rec_pipeline_msgs::RecognizeSpeech::Request &req,
-                    speech_rec_pipeline_msgs::RecognizeSpeech::Response &res){
-    // get jack sample rate
-    jack_nframes_t jack_sample_rate = jack_get_sample_rate(client);
-
-
-    // get length of audio requested
-    jack_nframes_t requested_audio_length = (jack_nframes_t) lround(req.recognize_last_audio_in_ms * jack_sample_rate / 1000);
-    ROS_DEBUG("requested %d audio frames", requested_audio_length);
-
-    // get audio from ringbuffer
-    jack_default_audio_sample_t* jack_sample = new jack_default_audio_sample_t[requested_audio_length];
-    int actual_audio_length = jack_buffer->pop(jack_sample, requested_audio_length);
-    if (requested_audio_length != actual_audio_length){
-        ROS_INFO("requested_audio_length (%d) and actual_audio_length (%d) differ, using smaller actual_audio_length!",
-                 requested_audio_length, actual_audio_length);
-    }
-
-    size_t deepspeech_buffer_size = (size_t) lround(actual_audio_length * DEEPSPEECH_SAMPLE_RATE / jack_sample_rate);
-    short *deepspeech_buffer = new short[deepspeech_buffer_size];
-    size_t deepspeech_buffer_written = 0;
-
-    // resample call
-    resampling::resample_jack_to_deepspeech(jack_sample,
-                                            (size_t) actual_audio_length,
-                                            client,
-                                            deepspeech_buffer,
-                                            deepspeech_buffer_size,
-                                            deepspeech_buffer_written,
-                                            DEEPSPEECH_SAMPLE_RATE);
-    delete(jack_sample);
-    ROS_DEBUG("Deepspeech buffer now with length %lu", deepspeech_buffer_written);
-
-    // aquire result
-    DsSTT::ds_result result = DsSTT::LocalDsSTT(model, (const short*)deepspeech_buffer,
-                                                deepspeech_buffer_size / 2, cfg.sample_rate);
-    delete(deepspeech_buffer);
-
-    // print out result
-    ROS_INFO("cpu_time_overall=%.05f",
-             result.cpu_time_overall);
-    if (result.string) {
-        ROS_INFO("Result: %s", result.string);
-    } else{
-        ROS_INFO("No Result!");
-        return false;
-    }
-
-    // assemble response
-    res.recognized_speech = result.string;
-
-    return true;
-}
- */
+boost::function<void()> esiaf_vad_callback;
+void esiaf_vad_handler(){ esiaf_vad_callback(); };
 
 /******************************************************************
  * Initialization Methods
@@ -157,10 +105,39 @@ void initialize_esiaf(){
                                 const esiaf_ros::RecordingTimeStamps &timeStamps){
 
         int16_t* signal_in_16bit = (int16_t*) signal.data();
-        jack_buffer->push(signal_in_16bit, (size_t) scaling_factor * signal.size());
+        ring_buffer->push(signal_in_16bit, (size_t) scaling_factor * signal.size());
     };
-
     esiaf_ros::add_input_topic(eh, topicInfo, esiaf_handler);
+
+
+    esiaf_vad_callback = [&](){
+
+        size_t deepspeech_buffer_size = ring_buffer->getSize();
+        int16_t* deepspeech_buffer = (int16_t*) malloc(deepspeech_buffer_size * sizeof * deepspeech_buffer);
+        ring_buffer->pop(deepspeech_buffer, deepspeech_buffer_size);
+
+
+        // aquire result
+        DsSTT::ds_result result = DsSTT::LocalDsSTT(model, (const short*)deepspeech_buffer,
+                                                    deepspeech_buffer_size / 2, 16000);
+        free(deepspeech_buffer);
+
+        // print out result
+        ROS_INFO("cpu_time_overall=%.05f",
+                 result.cpu_time_overall);
+        if (result.string) {
+            ROS_INFO("Result: %s", result.string);
+        } else{
+            ROS_INFO("No Result!");
+            return false;
+        }
+
+        // assemble response
+        //TODO
+
+        return true;
+    };
+    esiaf_ros::add_vad_finished_callback(eh, topicInfo.topic, esiaf_vad_handler);
 
     // start esiaf
     ROS_INFO("starting esiaf...");

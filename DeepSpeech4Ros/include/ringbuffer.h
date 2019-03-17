@@ -36,17 +36,14 @@ public:
      * reads the last *amount* of floats to the ringbuffer. wipes the ringbuffer afterwards.
      * @param audio
      * @param amount
-     * @return the amount of floats actually returned. should be equal to amount, but could be
-     * less, if for example
      */
-    size_t pop(int16_t* audio, size_t amount);
+    void pop(int16_t* audio, size_t amount);
+
+    size_t getSize();
 
 private:
     // the underlying circular_buffer
     boost::circular_buffer<int16_t> buffer;
-
-    // the size of the underlying boost::circular_buffer and thus the ringbuffer
-    size_t size;
 
     // mutex lock for thread safety
     std::mutex mutex_lock;
