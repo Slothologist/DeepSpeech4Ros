@@ -20,6 +20,7 @@ namespace utils{
         int sample_rate;
         int max_audio_length;
         std::string esiaf_input_topic;
+        std::string esiaf_speech_topic;
     };
 
     void read_config(config &config, std::string config_file);

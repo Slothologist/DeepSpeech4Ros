@@ -8,7 +8,6 @@
 #include <deepspeech/deepspeech.h>
 
 //std includes
-#include <cmath>
 
 // ros includes
 #include "ros/ros.h"
@@ -38,14 +37,21 @@ ModelState* model;
 // buffer and its size to temporarily save audio received from jack
 ringbuffer::Ringbuffer* ring_buffer;
 
-// ros node handle and services
+// ros node handle and publisher
 ros::NodeHandle* ros_node_handle;
+ros::Publisher speechPublisher;
 
+// callback function for when new audio is availble
 boost::function<void(const std::vector<int8_t> &, const esiaf_ros::RecordingTimeStamps &)> simple_esiaf_callback;
 void esiaf_handler(const std::vector<int8_t> &signal, const esiaf_ros::RecordingTimeStamps & timeStamps){ simple_esiaf_callback(signal, timeStamps); };
 
+// callback function for when a vad has finished detecting speech
 boost::function<void()> esiaf_vad_callback;
 void esiaf_vad_handler(){ esiaf_vad_callback(); };
+
+// ros times to keep track of the timeframe of the buffer and thus the speech signal
+ros::Time buffer_start_time = ros::TIME_MIN;
+ros::Time buffer_end_time = ros::TIME_MIN;
 
 /******************************************************************
  * Initialization Methods
@@ -74,6 +80,7 @@ void initialize_deepspeech(){
 void initialize_ros(int argc, char * *argv){
     ros::init(argc, argv, cfg.ros_node_name);
     ros_node_handle = new ros::NodeHandle;
+    speechPublisher = ros_node_handle->advertise<esiaf_ros::SpeechHypothesis>(cfg.esiaf_speech_topic, 1000);
 
     ROS_INFO("ROS initialized...");
 }
@@ -81,7 +88,7 @@ void initialize_ros(int argc, char * *argv){
 void initialize_esiaf(){
 
     ROS_INFO("starting esiaf initialisation...");
-    esiaf_ros::esiaf_handle *eh = esiaf_ros::initialize_esiaf(ros_node_handle, esiaf_ros::NodeDesignation::Other);
+    esiaf_ros::esiaf_handle *eh = esiaf_ros::initialize_esiaf(ros_node_handle, esiaf_ros::NodeDesignation::SpeechRec);
 
     //create format for output topic
     esiaf_ros::EsiafAudioTopicInfo topicInfo;
@@ -106,6 +113,8 @@ void initialize_esiaf(){
 
         int16_t* signal_in_16bit = (int16_t*) signal.data();
         ring_buffer->push(signal_in_16bit, (size_t) scaling_factor * signal.size());
+        buffer_end_time = timeStamps.finish;
+        buffer_start_time = timeStamps.start;
     };
     esiaf_ros::add_input_topic(eh, topicInfo, esiaf_handler);
 
@@ -132,8 +141,22 @@ void initialize_esiaf(){
             return false;
         }
 
-        // assemble response
-        //TODO
+        // assemble output
+        esiaf_ros::SpeechInfo info;
+        esiaf_ros::SpeechHypothesis hypo;
+        hypo.probability = 1.0;
+        hypo.recognizedSpeech = result.string;
+
+        std::vector<esiaf_ros::SpeechHypothesis> hypvec;
+        hypvec.push_back(hypo);
+        info.hypotheses = hypvec;
+        info.duration.start = buffer_start_time;
+        info.duration.finish = buffer_end_time;
+
+        speechPublisher.publish(info);
+
+        buffer_start_time = ros::TIME_MIN;
+        buffer_end_time = ros::TIME_MIN;
 
         return true;
     };

@@ -49,6 +49,7 @@ namespace utils {
         assert(config.max_audio_length%1000 == 0);
 
         config.esiaf_input_topic = pt.get<std::string>("esiaf_input_topic");
+        config.esiaf_speech_topic = pt.get<std::string>("esiaf_speech_topic");
 
     }
 
