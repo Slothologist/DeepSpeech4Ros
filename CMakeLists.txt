@@ -112,7 +112,7 @@ include_directories(
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(audio_segmenter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(deepspeech_4_ros ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 file(GLOB SOURCES "DeepSpeech4Ros/src/*.cpp")
 
@@ -128,7 +128,7 @@ add_dependencies(deepspeech_4_ros ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_E
 ## Specify libraries to link a library or executable target against
 target_link_libraries(deepspeech_4_ros
         ${catkin_LIBRARIES}
-        deepspeech
+        ${DEEPSPEECH}
         )
 
 #############
