@@ -17,7 +17,6 @@ namespace utils{
         std::string alphabet_path;
         std::string lm_path;
         std::string trie_path;
-        int sample_rate;
         int max_audio_length;
         std::string esiaf_input_topic;
         std::string esiaf_speech_topic;

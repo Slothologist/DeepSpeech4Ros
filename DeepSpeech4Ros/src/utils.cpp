@@ -44,7 +44,6 @@ namespace utils {
         config.lm_path = config.lm_path.append(LM_BINARY);
         config.trie_path = config.trie_path.append(TRIE);
 
-        config.sample_rate = pt.get<int>("sample_rate");
         config.max_audio_length = pt.get<int>("max_audio_length");
         assert(config.max_audio_length%1000 == 0);
 
