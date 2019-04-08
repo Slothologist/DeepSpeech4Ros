@@ -14,12 +14,11 @@ namespace ringbuffer{
     }
 
     void Ringbuffer::push(int16_t* audio, size_t amount){
-        mutex_lock.lock();
+        std::lock_guard<std::mutex> guard(mutex_lock);
         for(int i = 0; i < amount;i++){
             // push every sample individually... oh boy the performance!
             buffer.push_back(audio[i]);
         }
-        mutex_lock.unlock();
     }
 
     size_t Ringbuffer::getSize() {
@@ -27,7 +26,7 @@ namespace ringbuffer{
     }
 
     void Ringbuffer::pop(int16_t* audio, size_t amount){
-        mutex_lock.lock();
+        std::lock_guard<std::mutex> guard(mutex_lock);
 
         size_t actual_num_of_returned_samples = 0;
         if(buffer.size() < amount){
@@ -53,6 +52,5 @@ namespace ringbuffer{
          */
         buffer.clear();
 
-        mutex_lock.unlock();
     }
 }
