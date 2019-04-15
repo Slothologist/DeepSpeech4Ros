@@ -129,8 +129,10 @@ void initialize_esiaf(){
 
 
         // aquire result
-        DsSTT::ds_result result = DsSTT::LocalDsSTT(model, (const short*)deepspeech_buffer,
-                                                    deepspeech_buffer_size / 2, 16000);
+        DsSTT::ds_result result = DsSTT::LocalDsSTT(model,
+                                                    deepspeech_buffer,
+                                                    deepspeech_buffer_size,
+                                                    16000);
         //free(deepspeech_buffer);
 
         // print out result

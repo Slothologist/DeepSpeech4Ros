@@ -39,9 +39,9 @@ namespace ringbuffer{
         while(!buffer.empty() && running_variable){
             // basically the same problem as in push()... the performance may be very bad.
             // note that audio is written to in reverse because of buffer.back()
+            running_variable--;
             audio[running_variable] = buffer.back();
             buffer.pop_back();
-            running_variable--;
         }
         /**
          * Clear the buffer. Reasoning: Suppose your buffer size is equal to 10 seconds and it is written fully.
