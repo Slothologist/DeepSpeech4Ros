@@ -42,7 +42,7 @@ ros::NodeHandle* ros_node_handle;
 ros::Publisher speechPublisher;
 
 // esiaf handle
-esiaf_ros::Esiaf_Handler handler;
+esiaf_ros::Esiaf_Handler* handler;
 
 // callback function for when new audio is availble
 boost::function<void(const std::vector<int8_t> &, const esiaf_ros::RecordingTimeStamps &)> simple_esiaf_callback;
@@ -91,7 +91,7 @@ void initialize_ros(int argc, char * *argv){
 void initialize_esiaf(){
 
     ROS_INFO("starting esiaf initialisation...");
-    handler.initialize_esiaf(ros_node_handle, esiaf_ros::NodeDesignation::SpeechRec);
+    handler = new esiaf_ros::Esiaf_Handler(ros_node_handle, esiaf_ros::NodeDesignation::SpeechRec);
 
     //create format for output topic
     esiaf_ros::EsiafAudioTopicInfo topicInfo;
@@ -117,7 +117,7 @@ void initialize_esiaf(){
         buffer_end_time = timeStamps.finish;
         buffer_start_time = timeStamps.start;
     };
-    handler.add_input_topic(topicInfo, esiaf_handler);
+    handler->add_input_topic(topicInfo, esiaf_handler);
 
 
     esiaf_vad_callback = [&](){
@@ -164,12 +164,12 @@ void initialize_esiaf(){
 
         return true;
     };
-    handler.add_vad_finished_callback(topicInfo.topic, esiaf_vad_handler);
+    handler->add_vad_finished_callback(topicInfo.topic, esiaf_vad_handler);
 
     // start esiaf
     ROS_INFO("starting esiaf...");
 
-    handler.start_esiaf();
+    handler->start_esiaf();
 }
 
 /********************************************************************************
@@ -198,7 +198,8 @@ int main(int argc, char *argv[]) {
 
     // destructing stuff and freeing buffers
     DS_DestroyModel(model);
-    handler.quit_esiaf();
+    handler->quit_esiaf();
+    delete handler;
 
     return 0;
 }
