@@ -164,7 +164,7 @@ void initialize_esiaf(){
 
         return true;
     };
-    handler->add_vad_finished_callback(topicInfo.topic, esiaf_vad_handler);
+    handler->add_vad_finished_callback(topicInfo, esiaf_vad_handler);
 
     // start esiaf
     ROS_INFO("starting esiaf...");
