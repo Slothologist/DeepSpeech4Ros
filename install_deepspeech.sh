@@ -31,7 +31,7 @@ echo -e "\e[92m#### Bazel ####\e[0m"
 cd $MAIN
 if [ ! -e "bazel-0.15.0-dist.zip" ]
 then
-    wget https://github.com/bazelbuild/bazel/releases/download/0.15.0/bazel-0.15.0-dist.zip
+    wget --no-check-certificate --tries=3 https://github.com/bazelbuild/bazel/releases/download/0.15.0/bazel-0.15.0-dist.zip
     ok
 fi
 unzip -oq bazel-0.15.0-dist.zip -d bazel
