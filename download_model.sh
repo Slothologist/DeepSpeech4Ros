@@ -14,7 +14,7 @@ mkdir -p model
 cd model
 if [ ! -e "deepspeech-0.4.1-models.tar.gz" ]
 then
-    wget https://github.com/mozilla/DeepSpeech/releases/download/v0.4.1/deepspeech-0.4.1-models.tar.gz
+    wget --no-check-certificate --tries=3 https://github.com/mozilla/DeepSpeech/releases/download/v0.4.1/deepspeech-0.4.1-models.tar.gz
 fi
 tar xvfz deepspeech-0.4.1-models.tar.gz
 ok
